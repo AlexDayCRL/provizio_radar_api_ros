@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>provizio_radar_api_ros</name>
+  <version>23.01.19</version>
+  <description>ROS 1 Driver for Provizio radars</description>
+
+  <maintainer email="contact@provizio.ai">Provizio</maintainer>
+
+  <license>Apache 2.0 License</license>
+
+  <url type="website">https://provizio.ai/</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+</package>
