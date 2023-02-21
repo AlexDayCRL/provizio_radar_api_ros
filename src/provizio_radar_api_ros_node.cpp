@@ -92,14 +92,14 @@ namespace
         {
             // Output all points
             ros_point_cloud.width = point_cloud->num_points_received;
-            ros_point_cloud.data.resize(ros_point_cloud.row_step);
+            ros_point_cloud.data.resize(ros_point_cloud.point_step * point_cloud->num_points_received);
             std::memcpy(ros_point_cloud.data.data(), point_cloud->radar_points, ros_point_cloud.data.size());
         }
         else
         {
             // Apply SnR filter
             ros_point_cloud.width = 0;
-            ros_point_cloud.data.reserve(ros_point_cloud.row_step);
+            ros_point_cloud.data.reserve(ros_point_cloud.point_step * point_cloud->num_points_received);
             for (std::size_t i = 0; i < point_cloud->num_points_received; ++i)
             {
                 if (point_cloud->radar_points[i].signal_to_noise_ratio >= snr_threshold)
@@ -110,7 +110,7 @@ namespace
                 }
             }
         }
-        ros_point_cloud.row_step = ros_point_cloud.point_step * ros_point_cloud.width;
+        ros_point_cloud.row_step = static_cast<decltype(ros_point_cloud.row_step)>(ros_point_cloud.data.size());
         ros_point_cloud.is_dense = true;
 
         // Good to publish now
