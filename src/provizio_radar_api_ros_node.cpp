@@ -24,6 +24,7 @@ namespace
 {
     constexpr const char *topic_name = "/provizio_radar_point_cloud";
     constexpr std::uint64_t receive_timeout_ns = 100000000; // 0.1s
+    constexpr float snr_threshold = 4.5F;                   // Mininal signal_to_noise_ratio to output a point
 
     std::size_t point_clouds_sent = 0;
     std::size_t points_sent = 0;
@@ -60,7 +61,6 @@ namespace
         ros_point_cloud.header.stamp.fromNSec(point_cloud->timestamp);
         ros_point_cloud.header.frame_id = "provizio_radar_" + std::to_string(point_cloud->radar_position_id); // Defines a reference frame, not a frame number
         ros_point_cloud.height = 1;
-        ros_point_cloud.width = point_cloud->num_points_received;
         ros_point_cloud.fields.resize(num_fields_per_point);
         ros_point_cloud.fields[field_x].name = "x";
         ros_point_cloud.fields[field_x].offset = offsetof(provizio_radar_point, x_meters);
@@ -88,9 +88,29 @@ namespace
         ros_point_cloud.fields[field_ground_relative_radial_velocity].count = 1;
         ros_point_cloud.is_bigendian = is_host_big_endian();
         ros_point_cloud.point_step = sizeof(provizio_radar_point);
-        ros_point_cloud.row_step = sizeof(provizio_radar_point) * point_cloud->num_points_received;
-        ros_point_cloud.data.resize(ros_point_cloud.row_step);
-        std::memcpy(ros_point_cloud.data.data(), point_cloud->radar_points, ros_point_cloud.data.size());
+        if (snr_threshold <= 0.0F)
+        {
+            // Output all points
+            ros_point_cloud.width = point_cloud->num_points_received;
+            ros_point_cloud.data.resize(ros_point_cloud.row_step);
+            std::memcpy(ros_point_cloud.data.data(), point_cloud->radar_points, ros_point_cloud.data.size());
+        }
+        else
+        {
+            // Apply SnR filter
+            ros_point_cloud.width = 0;
+            ros_point_cloud.data.reserve(ros_point_cloud.row_step);
+            for (std::size_t i = 0; i < point_cloud->num_points_received; ++i)
+            {
+                if (point_cloud->radar_points[i].signal_to_noise_ratio >= snr_threshold)
+                {
+                    ++ros_point_cloud.width;
+                    ros_point_cloud.data.resize(ros_point_cloud.data.size() + ros_point_cloud.point_step);
+                    std::memcpy(ros_point_cloud.data.data() + ros_point_cloud.data.size() - ros_point_cloud.point_step, &point_cloud->radar_points[i], ros_point_cloud.point_step);
+                }
+            }
+        }
+        ros_point_cloud.row_step = ros_point_cloud.point_step * ros_point_cloud.width;
         ros_point_cloud.is_dense = true;
 
         // Good to publish now
