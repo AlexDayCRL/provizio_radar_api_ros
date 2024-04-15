@@ -109,7 +109,9 @@ set(PROVIZIO_RADAR_CORE_API_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/provizio_rad
 set(PROVIZIO_RADAR_CORE_API_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/provizio_radar_api_core")
 set(PROVIZIO_RADAR_CORE_API_PREFIX "${CMAKE_CURRENT_BINARY_DIR}")
 set(PROVIZIO_RADAR_CORE_API_GITHUB_PROJECT "provizio/provizio_radar_api_core") # Or your own fork
-set(PROVIZIO_RADAR_CORE_API_GITHUB_BRANCH "v22.11.17") # Or a specific tag you'd like to use
+if(NOT DEFINED PROVIZIO_RADAR_CORE_API_GITHUB_BRANCH)
+set(PROVIZIO_RADAR_CORE_API_GITHUB_BRANCH "v23.11.22") # Or a specific tag you'd like to use
+endif(NOT DEFINED PROVIZIO_RADAR_CORE_API_GITHUB_BRANCH)
 set(PROVIZIO_RADAR_CORE_API_INSTALL_DIR "${PROVIZIO_RADAR_CORE_API_BINARY_DIR}/install")
 ExternalProject_Add(libprovizio_radar_api_core
   GIT_REPOSITORY "https://github.com/${PROVIZIO_RADAR_CORE_API_GITHUB_PROJECT}.git" # or "git@github.com:${PROVIZIO_RADAR_CORE_API_GITHUB_PROJECT}.git" for ssh access, or your custom repo
@@ -169,7 +171,7 @@ install(TARGETS ${PROJECT_NAME}_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-## Mark cpp header files for installation
+# # Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
