@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>provizio_radar_api_ros</name>
-  <version>23.01.19</version>
+  <version>2024.4.17</version>
   <description>ROS 1 Driver for Provizio radars</description>
 
   <maintainer email="contact@provizio.ai">Provizio</maintainer>
