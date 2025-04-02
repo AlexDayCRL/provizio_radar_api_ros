@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <string>
 #include <memory>
 #include <inttypes.h>
 
@@ -22,9 +23,9 @@
 
 namespace
 {
-    constexpr const char *topic_name = "/provizio_radar_point_cloud";
+    std::string topic_name = "/provizio_radar_point_cloud";
     constexpr std::uint64_t receive_timeout_ns = 100000000; // 0.1s
-    constexpr float snr_threshold = 4.5F;                   // Mininal signal_to_noise_ratio to output a point
+    float snr_threshold = 4.5F;                   // Mininal signal_to_noise_ratio to output a point
 
     std::size_t point_clouds_sent = 0;
     std::size_t points_sent = 0;
@@ -123,7 +124,10 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "provizio_radar_api_ros_node");
 
-    ros::NodeHandle node;
+    ros::NodeHandle node{"~"};
+
+    node.param<std::string>("topic_name", topic_name, "/provizio_radar_point_cloud");
+    node.param<float>("snr_threshold", snr_threshold, 4.5F);
 
     // TODO: Support multiple radars use case, each publishing to their respective topics
     ros::Publisher publisher = node.advertise<sensor_msgs::PointCloud2>(topic_name, 10);
@@ -143,6 +147,8 @@ int main(int argc, char **argv)
     }
 
     ROS_INFO("provizio_radar_api_ros_node is running");
+    ROS_INFO("topic_name %s", topic_name.c_str());
+    ROS_INFO("snr_threshold: %f", snr_threshold);
 
     try
     {
